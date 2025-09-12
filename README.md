@@ -1,8 +1,8 @@
-# MCP Redmine
+# MCP Redmine (Active Fork)
 
 **Status: Works great and is in daily use without any known bugs.**
 
-**Status2: I just added the package to PyPI and updated the usage instructions. Please report any issues :)**
+**Fork Notice: This is an active fork of [runekaagaard/mcp-redmine](https://github.com/runekaagaard/mcp-redmine) maintained to ensure stability and availability when upstream development is limited.**
 
 Let Claude be your Redmine assistant! MCP Redmine connects Claude Desktop to your Redmine instance, allowing it to:
 
@@ -49,8 +49,8 @@ Add to your `claude_desktop_config.json`:
     "mcpServers": {
       "redmine": {
         "command": "uvx",
-        "args": ["--from", "mcp-redmine==2025.07.09.120802", 
-                "--refresh-package", "mcp-redmine", "mcp-redmine"],
+        "args": ["--from", "mcp-redmine-x==2025.7.9.post0",
+                "--refresh-package", "mcp-redmine-x", "mcp-redmine"],
         "env": {
           "REDMINE_URL": "https://your-redmine-instance.example.com",
           "REDMINE_API_KEY": "your-api-key",
@@ -70,7 +70,7 @@ docker --version
 
 Build docker image:
 ```bash
-git clone git@github.com:runekaagaard/mcp-redmine.git
+git clone git@github.com:olssonsten/mcp-redmine.git
 cd mcp-redmine
 docker build -t mcp-redmine .
 ```
@@ -248,7 +248,7 @@ MCP Redmine is listed in the following MCP directory sites and repositories:
 First clone the github repository and install the dependencies:
 
 ```
-git clone git@github.com:runekaagaard/mcp-redmine.git
+git clone git@github.com:olssonsten/mcp-redmine.git
 cd mcp-redmine
 uv sync
 ```
@@ -269,7 +269,20 @@ Then set this in claude_desktop_config.json:
 - **[Diffpilot](https://github.com/runekaagaard/diffpilot)** - Multi-column git diff viewer with file grouping and tagging.
 - **[Claude Local Files](https://github.com/runekaagaard/claude-local-files)** - Access local files in Claude Desktop artifacts.
 
-## Contributing
+## Fork Information
+
+**Upstream Repository**: https://github.com/runekaagaard/mcp-redmine
+**Fork Repository**: https://github.com/olssonsten/mcp-redmine
+**License**: Mozilla Public License Version 2.0 (MPL-2.0)
+
+### Fork Rationale
+This fork exists to maintain an active, consumable version of the Redmine MCP server when upstream development is limited. Our goals:
+- Ensure stability and availability for active projects
+- Track upstream changes without being blocked by inactivity
+- Maintain license compliance under MPL-2.0
+- Provide tagged releases and PyPI packages
+
+### Contributing
 
 Contributions are warmly welcomed! Whether it's bug reports, feature requests, documentation improvements, or code contributions - all input is valuable. Feel free to:
 
@@ -280,10 +293,14 @@ Contributions are warmly welcomed! Whether it's bug reports, feature requests, d
 
 The goal is to make Redmine project management with Claude even better, and your insights and contributions help achieve that.
 
+### Upstream Relationship
+We actively track the upstream repository and selectively cherry-pick changes to minimize divergence. If upstream becomes active again, we will propose merging our patches back and potentially archive this fork in favor of the original.
+
 ## Acknowledgments
 
 This project builds on the excellent work of others:
 
+- **[Rune Kaagaard](https://github.com/runekaagaard)** - Original author of [mcp-redmine](https://github.com/runekaagaard/mcp-redmine)
 - [httpx](https://www.python-httpx.org/) - For handling HTTP requests
 - [Redmine OpenAPI Specification](https://github.com/d-yoshi/redmine-openapi) - For the comprehensive API specification
 - [Redmine](https://www.redmine.org/) - The flexible project management web application

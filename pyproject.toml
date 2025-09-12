@@ -1,7 +1,7 @@
 [project]
-name = "mcp-redmine"
-version = "2025.07.09.120802"
-description = "A MCP server that connects to your Redmine instance"
+name = "mcp-redmine-x"
+version = "2025.7.9.post0"
+description = "A MCP server that connects to your Redmine instance (Active Fork)"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
@@ -12,23 +12,25 @@ dependencies = [
 ]
 authors = [
   { name="Rune Kaagaard" },
+  { name="Sten Olsson", email="olssonsten@users.noreply.github.com" },
 ]
 classifiers = [
     "Programming Language :: Python :: 3",
     "Operating System :: OS Independent",
 ]
 license-files = ["LICENSE"]
-packages = [
-    {include = "mcp_redmine"}
-]
+
+[tool.hatch.build.targets.wheel]
+packages = ["mcp_redmine"]
 
 [project.scripts]
 mcp-redmine = "mcp_redmine.server:main"
 
 [project.urls]
-Homepage = "https://github.com/runekaagaard/mcp-redmine"
-Issues = "https://github.com/runekaagaard/mcp-redmine/issues"
-Disussions = "https://github.com/runekaagaard/mcp-redmine/discussions"
+Homepage = "https://github.com/olssonsten/mcp-redmine"
+Issues = "https://github.com/olssonsten/mcp-redmine/issues"
+Discussions = "https://github.com/olssonsten/mcp-redmine/discussions"
+Upstream = "https://github.com/runekaagaard/mcp-redmine"
 
 [build-system]
 requires = ["hatchling>=1.27"]
