@@ -1,3 +1,7 @@
+---
+"mcp-redmine-enhanced": patch
+---
+
 # README Installation Improvements
 
 **Type**: Documentation Enhancement  
@@ -20,6 +24,7 @@ Improved README installation instructions to provide a better user experience wi
 - Fixed broken reference to non-existent `DEVELOPMENT_SETUP.md` file
 - Simplified developer guidance to reference Option 3 installation method
 - Maintained all essential package details (PyPI package name, version, repository)
+- Fixed "Gerrit/code review" phrasing to "code-related entries" for accuracy
 
 ### User Experience Improvements
 - Clearer installation flow with numbered options
@@ -49,6 +54,7 @@ Improved README installation instructions to provide a better user experience wi
 - Addresses user feedback about overly complex README
 - Fixes broken documentation references
 - Improves new user experience
+- Addresses CodeRabbit AI feedback on terminology accuracy
 
 ## Next Steps
 

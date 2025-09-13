@@ -7,7 +7,7 @@
 This fork adds several powerful enhancements over the original:
 
 - **🎯 Advanced Response Filtering**: Intelligent filtering with preset configurations (`minimal`, `clean`, `essential_issues`)
-- **📝 Journal Filtering**: Filter Gerrit/code review entries from issue journals for cleaner output
+- **📝 Journal Filtering**: Filter code-related entries from issue journals for cleaner output
 - **🔒 Enhanced Security**: ReDoS protection and comprehensive input validation
 - **⚡ MCP Capabilities**: Dynamic capability reporting based on API paths
 - **🧪 Comprehensive Testing**: 106+ tests covering security and edge cases
