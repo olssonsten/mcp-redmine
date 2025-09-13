@@ -1,12 +1,21 @@
-# MCP Redmine (Active Fork)
-
-**Status: Works great and is in daily use without any known bugs.**
+# MCP Redmine Enhanced (Active Fork)
 
 **Fork Notice: This is an active fork of [runekaagaard/mcp-redmine](https://github.com/runekaagaard/mcp-redmine) maintained to ensure stability and availability when upstream development is limited.**
 
-**Status2: I just added the package to PyPI and updated the usage instructions. Please report any issues :)**
+## Enhanced Features
 
-Let Claude be your Redmine assistant! MCP Redmine connects Claude Desktop to your Redmine instance, allowing it to:
+This fork adds several powerful enhancements over the original:
+
+- **🎯 Advanced Response Filtering**: Intelligent filtering with preset configurations (`minimal`, `clean`, `essential_issues`)
+- **📝 Journal Filtering**: Filter Gerrit/code review entries from issue journals for cleaner output
+- **🔒 Enhanced Security**: ReDoS protection and comprehensive input validation
+- **⚡ MCP Capabilities**: Dynamic capability reporting based on API paths
+- **🧪 Comprehensive Testing**: 106+ tests covering security and edge cases
+- **🚀 Automated Publication**: Complete PyPI publication workflow with pre-checks
+
+## Core Functionality
+
+Let Claude be your Redmine assistant! MCP Redmine connects your MCP client to your Redmine instance, allowing it to:
 
 - Search and browse projects and issues
 - Create and update issues with full markdown support
@@ -51,8 +60,8 @@ Add to your `claude_desktop_config.json`:
     "mcpServers": {
       "redmine": {
         "command": "uvx",
-        "args": ["--from", "mcp-redmine==2025.09.03.141435.post0",
-                "--refresh-package", "mcp-redmine", "mcp-redmine"],
+        "args": ["--from", "mcp-redmine-enhanced==2025.09.03.141435.post0",
+                "--refresh-package", "mcp-redmine-enhanced", "mcp-redmine"],
         "env": {
           "REDMINE_URL": "https://your-redmine-instance.example.com",
           "REDMINE_API_KEY": "your-api-key",
@@ -62,6 +71,31 @@ Add to your `claude_desktop_config.json`:
     }
   }
 ```
+
+### Alternative: Use Latest Git Version (Development)
+
+For the latest features and automatic updates, you can configure your MCP client to use the Git repository directly:
+
+```json
+{
+  "mcpServers": {
+    "redmine": {
+      "command": "uvx",
+      "args": ["--from", "git+https://github.com/olssonsten/mcp-redmine.git",
+               "--refresh-package", "mcp-redmine-enhanced", "mcp-redmine"],
+      "env": {
+        "REDMINE_URL": "https://your-redmine-instance.example.com",
+        "REDMINE_API_KEY": "your-api-key",
+        "REDMINE_REQUEST_INSTRUCTIONS": "/path/to/instructions.md"
+      }
+    }
+  }
+}
+```
+
+This automatically uses the latest version from the main branch without needing PyPI updates. Perfect for development and testing new features.
+
+**Note**: The package name is `mcp-redmine-enhanced` but the console script remains `mcp-redmine` for compatibility.
 
 ### 2. Installation using `docker`
 
