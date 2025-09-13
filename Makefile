@@ -14,7 +14,13 @@ PACKAGE_NAME := mcp-redmine-enhanced
 # Version Management
 version-bump:
 	sed -i.bak "s/$(PACKAGE_NAME)==[0-9.]*\.post[0-9]*\"/$(PACKAGE_NAME)==$(VERSION)\"/g" README.md && rm README.md.bak
-	sed -i.bak "s/version = \"[^\"]*\"/version = \"$(VERSION)\"/" pyproject.toml && rm pyproject.toml.bak
+	awk -v ver="$(VERSION)" '\
+	  BEGIN{in_proj=0}\
+	  /^\[project\]$$/ {in_proj=1; print; next}\
+	  /^\[/ && $$0!="[project]" {in_proj=0}\
+	  in_proj && /^version = "/ { sub(/version = "[^"]*"/, "version = \"" ver "\""); print; next }\
+	  {print}\
+	' pyproject.toml > pyproject.toml.tmp && mv pyproject.toml.tmp pyproject.toml
 	sed -i.bak "s/VERSION = \"[^\"]*\"/VERSION = \"$(VERSION)\"/" $(PACKAGE)/server.py && rm $(PACKAGE)/server.py.bak
 
 version-bump-claude-desktop:
@@ -71,7 +77,8 @@ publish-prod: pre-publish-check
 	$(MAKE) build-package
 	uv lock
 	uv publish --token "$$PYPI_TOKEN_PROD"
-	git add uv.lock README.md pyproject.toml $(PACKAGE)/server.py
+	git add uv.lock README.md pyproject.toml
+	[ -f "$(PACKAGE)/server.py" ] && git add "$(PACKAGE)/server.py" || true
 	git commit -m "Published version $(VERSION) to PyPI"
 	git push
 	@echo "🎉 Published to PyPI: https://pypi.org/project/$(PACKAGE_NAME)/"
