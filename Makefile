@@ -2,8 +2,8 @@ SHELL := /bin/bash
 .SHELLFLAGS := -ec
 
 # Project Configuration
-PROJECT := "mcp-redmine-enhanced"
-PACKAGE := "mcp_redmine"
+PROJECT := mcp-redmine-enhanced
+PACKAGE := mcp_redmine
 VERSION := $(shell date +%Y.%m.%d.%H%M%S).post0
 
 # Common Variables
@@ -13,12 +13,12 @@ PACKAGE_NAME := mcp-redmine-enhanced
 
 # Version Management
 version-bump:
-	sed -i "s/$(PACKAGE_NAME)==[0-9.]*\.post[0-9]*\"/$(PACKAGE_NAME)==$(VERSION)\"/g" README.md
-	sed -i "s/version = \"[^\"]*\"/version = \"$(VERSION)\"/" pyproject.toml
-	sed -i "s/VERSION = \"[^\"]*\"/VERSION = \"$(VERSION)\"/" $(PACKAGE)/server.py
+	sed -i.bak "s/$(PACKAGE_NAME)==[0-9.]*\.post[0-9]*\"/$(PACKAGE_NAME)==$(VERSION)\"/g" README.md && rm README.md.bak
+	sed -i.bak "s/version = \"[^\"]*\"/version = \"$(VERSION)\"/" pyproject.toml && rm pyproject.toml.bak
+	sed -i.bak "s/VERSION = \"[^\"]*\"/VERSION = \"$(VERSION)\"/" $(PACKAGE)/server.py && rm $(PACKAGE)/server.py.bak
 
 version-bump-claude-desktop:
-	sed -i "s/$(PACKAGE_NAME)==[0-9.]*\.post[0-9]*\"/$(PACKAGE_NAME)==$(VERSION)\"/g" ~/.config/Claude/claude_desktop_config.json
+	sed -i.bak "s/$(PACKAGE_NAME)==[0-9.]*\.post[0-9]*\"/$(PACKAGE_NAME)==$(VERSION)\"/g" ~/.config/Claude/claude_desktop_config.json && rm ~/.config/Claude/claude_desktop_config.json.bak
 
 # Build Helpers
 clean-dist:
@@ -64,7 +64,8 @@ publish-prod: pre-publish-check
 	$(MAKE) build-package
 	uv lock
 	uv publish --token "$$PYPI_TOKEN_PROD"
-	git commit -am "Published version $(VERSION) to PyPI"
+	git add uv.lock README.md pyproject.toml $(PACKAGE)/server.py
+	git commit -m "Published version $(VERSION) to PyPI"
 	git push
 	@echo "🎉 Published to PyPI: https://pypi.org/project/$(PACKAGE_NAME)/"
 
@@ -75,12 +76,14 @@ setup-test-env:
 
 package-inspect-test: setup-test-env
 	source $(TEST_VENV)/bin/activate && uv pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ $(PACKAGE_NAME)
-	tree $(TEST_VENV)/lib/python$(PYTHON_VERSION)/site-packages/$(PACKAGE)
+	(command -v tree > /dev/null && tree $(TEST_VENV)/lib/python$(PYTHON_VERSION)/site-packages/$(PACKAGE)) || \
+	find $(TEST_VENV)/lib/python$(PYTHON_VERSION)/site-packages/$(PACKAGE) -maxdepth 2 -print
 	source $(TEST_VENV)/bin/activate && which mcp-redmine
 
 package-inspect-prod: setup-test-env
 	source $(TEST_VENV)/bin/activate && uv pip install $(PACKAGE_NAME)
-	tree $(TEST_VENV)/lib/python$(PYTHON_VERSION)/site-packages/$(PACKAGE)
+	(command -v tree > /dev/null && tree $(TEST_VENV)/lib/python$(PYTHON_VERSION)/site-packages/$(PACKAGE)) || \
+	find $(TEST_VENV)/lib/python$(PYTHON_VERSION)/site-packages/$(PACKAGE) -maxdepth 2 -print
 	source $(TEST_VENV)/bin/activate && which mcp-redmine
 
 package-run-test:

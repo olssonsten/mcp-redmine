@@ -27,9 +27,8 @@ Configure PyPI publication with enhanced package name and comprehensive developm
 - `make help`: Shows comprehensive command documentation
 
 ### Documentation
-- **Created DEVELOPMENT_SETUP.md**: Comprehensive guide for RooCode/Kiro configuration with Git-based setup
-- **Updated README.md**: Added Git repository configuration option for automatic updates
-- **Removed PYPI_PUBLICATION.md**: Redundant with Makefile automation
+- **Updated README.md**: Added Git repository configuration option for automatic updates with clear explanation
+- **Streamlined documentation**: Removed redundant files, kept essential information in README.md
 
 ### Git-Based Development Configuration
 - **Direct Git repository**: Configure MCP clients to use `git+https://github.com/olssonsten/mcp-redmine.git`
@@ -89,13 +88,13 @@ name = "mcp-redmine-enhanced"
 
 ## Files Modified
 - `pyproject.toml` - Package name, author email, build configuration
-- `Makefile` - Complete rewrite with automation and cleanup
-- `README.md` - Added Git configuration section
+- `Makefile` - Complete rewrite with automation, cleanup, and cross-platform compatibility
+- `README.md` - Added Git configuration section with clear package/script name explanation
 - `.changesets/pypi-publication-setup.md` - This changeset document
-- `DEVELOPMENT_SETUP.md` - New comprehensive development guide
 
 ## Files Removed
 - `PYPI_PUBLICATION.md` - Redundant with Makefile automation
+- `DEVELOPMENT_SETUP.md` - Redundant with README.md content
 
 ## Testing
 - All 106 tests pass after changes
