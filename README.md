@@ -29,60 +29,22 @@ Uses httpx for API requests and integrates with the Redmine OpenAPI specificatio
 ![MCP Redmine in action](https://raw.githubusercontent.com/runekaagaard/mcp-redmine/refs/heads/main/screenshot.png)
 
 
-## Usage with Claude Desktop
-### 1. Installation using `uv`
+## Installation
 
-Ensure you have uv installed.
-```bash
-uv --version
-```
+### Option 1: Using uvx (Recommended)
 
-Install uv if you haven't already.
-
-- Linux
-  ```bash
-  curl -LsSf https://astral.sh/uv/install.sh | sh
-  ```
-
-- macOS
-  ```zsh
-  brew install uv
-  ```
-
-- windows
-  ```powershell
-  powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
-  ```
-
-Add to your `claude_desktop_config.json`:
-```json
-  {
-    "mcpServers": {
-      "redmine": {
-        "command": "uvx",
-        "args": ["--from", "mcp-redmine-enhanced==2025.09.03.141435.post0",
-                "--refresh-package", "mcp-redmine-enhanced", "mcp-redmine"],
-        "env": {
-          "REDMINE_URL": "https://your-redmine-instance.example.com",
-          "REDMINE_API_KEY": "your-api-key",
-          "REDMINE_REQUEST_INSTRUCTIONS": "/path/to/instructions.md"
-        }
-      }
-    }
-  }
-```
-
-### Alternative: Use Latest Git Version (Development)
-
-For the latest features and automatic updates, you can configure your MCP client to use the Git repository directly:
+The easiest way to install MCP Redmine Enhanced:
 
 ```json
 {
   "mcpServers": {
     "redmine": {
       "command": "uvx",
-      "args": ["--from", "git+https://github.com/olssonsten/mcp-redmine.git",
-               "--refresh-package", "mcp-redmine-enhanced", "mcp-redmine"],
+      "args": [
+        "--from", "mcp-redmine-enhanced==2025.09.13.140055.post0",
+        "--refresh-package", "mcp-redmine-enhanced",
+        "mcp-redmine"
+      ],
       "env": {
         "REDMINE_URL": "https://your-redmine-instance.example.com",
         "REDMINE_API_KEY": "your-api-key",
@@ -93,48 +55,103 @@ For the latest features and automatic updates, you can configure your MCP client
 }
 ```
 
-This automatically uses the latest version from the main branch without needing PyPI updates. Perfect for development and testing new features.
+**Prerequisites**: Install `uv` if you don't have it:
+- **Linux/macOS**: `curl -LsSf https://astral.sh/uv/install.sh | sh`
+- **macOS (Homebrew)**: `brew install uv`
+- **Windows**: `powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"`
 
-**Note**: The package name is `mcp-redmine-enhanced` but the console script remains `mcp-redmine` for compatibility.
+### Option 2: Using pip
 
-### 2. Installation using `docker`
+If you prefer using pip, first install the package globally:
 
-Ensure you have docker installed. 
 ```bash
-docker --version
+pip install mcp-redmine-enhanced
 ```
 
-Build docker image:
-```bash
-git clone git@github.com:runekaagaard/mcp-redmine.git
-cd mcp-redmine
-docker build -t mcp-redmine .
-```
-Add to your `claude_desktop_config.json`:
-  ```json
-  {
-    "mcpServers": {
-      "redmine": {
-        "command": "docker",
-        "args":  [
-            "run",
-            "-i",
-            "--rm",
-            "-e", "REDMINE_URL",
-            "-e", "REDMINE_API_KEY",
-            "-e", "REDMINE_REQUEST_INSTRUCTIONS",
-            "-v", "/path/to/instructions.md:/app/INSTRUCTIONS.md",
-            "mcp-redmine"
-        ],
-        "env": {
-          "REDMINE_URL": "https://your-redmine-instance.example.com",
-          "REDMINE_API_KEY": "your-api-key",
-          "REDMINE_REQUEST_INSTRUCTIONS": "/app/INSTRUCTIONS.md"
-        }
+Then configure Claude Desktop:
+```json
+{
+  "mcpServers": {
+    "redmine": {
+      "command": "mcp-redmine",
+      "env": {
+        "REDMINE_URL": "https://your-redmine-instance.example.com",
+        "REDMINE_API_KEY": "your-api-key",
+        "REDMINE_REQUEST_INSTRUCTIONS": "/path/to/instructions.md"
       }
     }
   }
-  ```
+}
+```
+
+### Option 3: Development from Git
+
+For the latest features and automatic updates:
+
+```json
+{
+  "mcpServers": {
+    "redmine": {
+      "command": "uvx",
+      "args": [
+        "--from", "git+https://github.com/olssonsten/mcp-redmine.git",
+        "--refresh-package", "mcp-redmine-enhanced",
+        "mcp-redmine"
+      ],
+      "env": {
+        "REDMINE_URL": "https://your-redmine-instance.example.com",
+        "REDMINE_API_KEY": "your-api-key",
+        "REDMINE_REQUEST_INSTRUCTIONS": "/path/to/instructions.md"
+      }
+    }
+  }
+}
+```
+
+**Package Details:**
+- **PyPI Package**: `mcp-redmine-enhanced`
+- **Console Script**: `mcp-redmine` (for compatibility)
+- **Latest Version**: `2025.09.13.140055.post0`
+- **Repository**: https://github.com/olssonsten/mcp-redmine
+
+For developers who want to contribute or modify the code, clone the repository and use the local development setup described in Option 3 above.
+
+### Alternative: Docker Installation
+
+If you prefer using Docker:
+
+1. **Build Docker Image**
+   ```bash
+   git clone https://github.com/olssonsten/mcp-redmine.git
+   cd mcp-redmine
+   docker build -t mcp-redmine-enhanced .
+   ```
+
+2. **Configure Claude Desktop**
+   ```json
+   {
+     "mcpServers": {
+       "redmine": {
+         "command": "docker",
+         "args": [
+           "run", "-i", "--rm",
+           "-e", "REDMINE_URL",
+           "-e", "REDMINE_API_KEY",
+           "-e", "REDMINE_REQUEST_INSTRUCTIONS",
+           "-v", "/path/to/instructions.md:/app/INSTRUCTIONS.md",
+           "mcp-redmine-enhanced"
+         ],
+         "env": {
+           "REDMINE_URL": "https://your-redmine-instance.example.com",
+           "REDMINE_API_KEY": "your-api-key",
+           "REDMINE_REQUEST_INSTRUCTIONS": "/app/INSTRUCTIONS.md"
+         }
+       }
+     }
+   }
+   ```
+
+> **Note**: When using Docker, the `REDMINE_REQUEST_INSTRUCTIONS` environment variable must point to a path inside the container. Mount your local instruction file into the container at the correct location.
 
 ## Environment Variables
 
@@ -282,24 +299,6 @@ MCP Redmine is listed in the following MCP directory sites and repositories:
 - [MCP.so](https://mcp.so/server/mcp-redmine)
 - [Glama](https://glama.ai/mcp/servers/@runekaagaard/mcp-redmine)
 
-## Developing
-
-First clone the github repository and install the dependencies:
-
-```
-git clone git@github.com:runekaagaard/mcp-redmine.git
-cd mcp-redmine
-uv sync
-```
-
-Then set this in claude_desktop_config.json:
-
-```
-...
-"command": "uv",
-"args": ["run", "--directory", "/path/to/mcp-redmine", "-m", "mcp_redmine.server", "main"],
-...
-```
 
 ## My Other LLM Projects
 
