@@ -165,6 +165,7 @@ Add to your `claude_desktop_config.json`:
         subject: "Fix login page"
         ...
   error: ""
+  mcp_filtered: true  # Added when filtering is applied
   ```
 
 - **redmine_upload**
@@ -236,6 +237,8 @@ redmine_request("/issues.json", params={"limit": 5}, mcp_filter={"remove_empty":
 
 Use preset for clean responses:
 redmine_request("/issues.json", mcp_filter="clean")
+Filter journals for code reviews:
+redmine_request("/issues/123.json", params={"include": "journals"}, mcp_filter={"journals": {"code_review_only": True}})
 ```
 
 ## MCP Directory Listings

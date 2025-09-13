@@ -75,5 +75,19 @@ def get_mcp_capabilities(path: str) -> Dict[str, Any]:
             "description": "Keep only these custom fields by name",
             "example": ["Build", "Owner", "Priority"]
         }
+        capabilities["response_filtering"]["options"]["journals"] = {
+            "type": "object",
+            "description": "Filter journal entries to show only specific types",
+            "properties": {
+                "code_review_only": {
+                    "type": "boolean",
+                    "description": "Filter to show only code review-related journal entries (Gerrit, manual reviews)",
+                    "default": False,
+                    "example": True
+                }
+            },
+            "example": {"code_review_only": True},
+            "usage_note": "Requires 'journals' in the 'include' parameter of the Redmine API request"
+        }
     
     return capabilities

@@ -385,5 +385,161 @@ class TestApplyResponseFilter:
         assert result == expected
 
 
+class TestJournalFiltering:
+    """Test journal filtering integration with response filtering."""
+    
+    def test_journal_filtering_in_response_filter(self):
+        """Test that journal filtering works through the main response filter."""
+        response = {
+            "status_code": 200,
+            "body": {
+                "issue": {
+                    "id": 12345,
+                    "subject": "Test Issue",
+                    "journals": [
+                        {
+                            "id": 1,
+                            "notes": "Regular status update",
+                            "details": []
+                        },
+                        {
+                            "id": 2,
+                            "notes": "*Gerrit change* submitted *\"(Gerrit review)\":http://gerrit-server/r/c/12345/1*",
+                            "details": []
+                        },
+                        {
+                            "id": 3,
+                            "notes": "Code review completed and approved",
+                            "details": []
+                        }
+                    ]
+                }
+            },
+            "error": ""
+        }
+        
+        mcp_filter = {
+            "journals": {
+                "code_review_only": True
+            }
+        }
+        
+        result = apply_response_filter(response, mcp_filter)
+        
+        assert result["mcp_filtered"] is True
+        journals = result["body"]["issue"]["journals"]
+        
+        # Should only have the 2 code review entries
+        assert len(journals) == 2
+        assert journals[0]["id"] == 2  # Gerrit entry
+        assert journals[1]["id"] == 3  # Manual review entry
+    
+    def test_journal_filtering_with_other_filters(self):
+        """Test journal filtering combined with other response filters."""
+        response = {
+            "status_code": 200,
+            "body": {
+                "issue": {
+                    "id": 12345,
+                    "subject": "Test Issue",
+                    "description": "",
+                    "custom_fields": [
+                        {"id": 1, "name": "Build", "value": "v1.0"},
+                        {"id": 2, "name": "Contact", "value": ""}
+                    ],
+                    "journals": [
+                        {
+                            "id": 1,
+                            "notes": "Regular update",
+                            "details": []
+                        },
+                        {
+                            "id": 2,
+                            "notes": "*Gerrit change* submitted",
+                            "details": []
+                        }
+                    ]
+                }
+            },
+            "error": ""
+        }
+        
+        mcp_filter = {
+            "remove_empty": True,
+            "keep_custom_fields": ["Build"],
+            "journals": {
+                "code_review_only": True
+            }
+        }
+        
+        result = apply_response_filter(response, mcp_filter)
+        
+        assert result["mcp_filtered"] is True
+        issue = result["body"]["issue"]
+        
+        # Should have removed empty description
+        assert "description" not in issue
+        
+        # Should have only Build custom field
+        assert len(issue["custom_fields"]) == 1
+        assert issue["custom_fields"][0]["name"] == "Build"
+        
+        # Should have only Gerrit journal entry
+        assert len(issue["journals"]) == 1
+        assert issue["journals"][0]["id"] == 2
+    
+    def test_journal_filtering_disabled(self):
+        """Test that journals are not filtered when journal filtering is disabled."""
+        response = {
+            "status_code": 200,
+            "body": {
+                "issue": {
+                    "journals": [
+                        {"id": 1, "notes": "Regular update"},
+                        {"id": 2, "notes": "*Gerrit change* submitted"}
+                    ]
+                }
+            },
+            "error": ""
+        }
+        
+        # No journal filtering specified
+        mcp_filter = {
+            "remove_empty": True
+        }
+        
+        result = apply_response_filter(response, mcp_filter)
+        
+        # Should have all journals unchanged
+        assert len(result["body"]["issue"]["journals"]) == 2
+    
+    def test_journal_filtering_with_invalid_config(self):
+        """Test handling of invalid journal filter configuration."""
+        response = {
+            "status_code": 200,
+            "body": {
+                "issue": {
+                    "journals": [
+                        {"id": 1, "notes": "Regular update"},
+                        {"id": 2, "notes": "*Gerrit change* submitted"}
+                    ]
+                }
+            },
+            "error": ""
+        }
+        
+        # Invalid journal config (not a dict)
+        mcp_filter = {
+            "journals": "invalid_config"
+        }
+        
+        result = apply_response_filter(response, mcp_filter)
+        
+        # Should still work and return filtered response
+        assert result["mcp_filtered"] is True
+        # Journals should be unchanged due to invalid config
+        assert len(result["body"]["issue"]["journals"]) == 2
+
+
 if __name__ == "__main__":
     pytest.main([__file__])

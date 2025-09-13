@@ -170,6 +170,32 @@ class TestMcpCapabilities:
             assert isinstance(available_presets[preset], str), f"Preset {preset} should have string description"
             assert len(available_presets[preset]) > 0, f"Preset {preset} should have non-empty description"
 
+    def test_journal_filtering_capabilities(self):
+        """Test that journal filtering capabilities are documented for issues paths."""
+        capabilities = get_mcp_capabilities("/issues.json")
+        
+        # Should have journal filtering option for issues
+        assert "journals" in capabilities["response_filtering"]["options"]
+        
+        journal_option = capabilities["response_filtering"]["options"]["journals"]
+        assert journal_option["type"] == "object"
+        assert "code_review_only" in journal_option["properties"]
+        assert journal_option["example"] == {"code_review_only": True}
+        assert "usage_note" in journal_option
+        
+        # Verify the code_review_only property
+        code_review_prop = journal_option["properties"]["code_review_only"]
+        assert code_review_prop["type"] == "boolean"
+        assert code_review_prop["default"] is False
+        assert code_review_prop["example"] is True
+    
+    def test_journal_filtering_not_in_non_issues_paths(self):
+        """Test that journal filtering is not documented for non-issues paths."""
+        capabilities = get_mcp_capabilities("/projects.json")
+        
+        # Should not have journal filtering for non-issues paths
+        assert "journals" not in capabilities["response_filtering"]["options"]
+
 
 if __name__ == "__main__":
     pytest.main([__file__])

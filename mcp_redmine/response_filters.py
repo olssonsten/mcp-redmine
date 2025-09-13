@@ -9,6 +9,13 @@ YAML structure as the original Redmine API responses.
 from typing import Any, Dict, List, Optional, Union
 from dataclasses import dataclass
 import copy
+import re
+from mcp.server.fastmcp.utilities.logging import get_logger
+
+# Import journal filtering capabilities
+from .journal_filters import JournalFilterConfig, JournalFilterProcessor, filter_journals_for_code_review
+
+logger = get_logger(__name__)
 
 
 @dataclass
@@ -21,6 +28,71 @@ class FilterConfig:
     keep_custom_fields: Optional[List[str]] = None  # Keep only specified custom fields
     max_description_length: Optional[int] = None    # Truncate long descriptions
     max_array_items: Optional[int] = None           # Limit array sizes
+    journals: Optional[JournalFilterConfig] = None  # Journal filtering configuration
+
+
+def validate_filter_config(mcp_filter: dict) -> List[str]:
+    """
+    Validate MCP filter configuration and return list of validation errors.
+    
+    Args:
+        mcp_filter: Dictionary containing filter configuration
+        
+    Returns:
+        List of validation error messages (empty if valid)
+    """
+    errors = []
+    
+    # Validate journal filter configuration
+    if "journals" in mcp_filter:
+        journals_config = mcp_filter["journals"]
+        if not isinstance(journals_config, dict):
+            errors.append("journals filter must be a dictionary")
+        else:
+            # Validate journal filter options
+            valid_journal_options = {"code_review_only"}
+            for key in journals_config.keys():
+                if key not in valid_journal_options:
+                    errors.append(f"Invalid journal filter option: {key}. Valid options: {valid_journal_options}")
+            
+            # Validate code_review_only type
+            if "code_review_only" in journals_config:
+                if not isinstance(journals_config["code_review_only"], bool):
+                    errors.append("code_review_only must be a boolean value")
+    
+    # Validate other filter options
+    if "max_description_length" in mcp_filter:
+        if not isinstance(mcp_filter["max_description_length"], int) or mcp_filter["max_description_length"] <= 0:
+            errors.append("max_description_length must be a positive integer")
+    
+    if "max_array_items" in mcp_filter:
+        if not isinstance(mcp_filter["max_array_items"], int) or mcp_filter["max_array_items"] <= 0:
+            errors.append("max_array_items must be a positive integer")
+    
+    if "include_fields" in mcp_filter:
+        if not isinstance(mcp_filter["include_fields"], list):
+            errors.append("include_fields must be a list of strings")
+        elif not all(isinstance(x, str) for x in mcp_filter["include_fields"]):
+            errors.append("include_fields list items must be strings")
+    
+    if "exclude_fields" in mcp_filter:
+        if not isinstance(mcp_filter["exclude_fields"], list):
+            errors.append("exclude_fields must be a list of strings")
+        elif not all(isinstance(x, str) for x in mcp_filter["exclude_fields"]):
+            errors.append("exclude_fields list items must be strings")
+    
+    if "keep_custom_fields" in mcp_filter:
+        if not isinstance(mcp_filter["keep_custom_fields"], list):
+            errors.append("keep_custom_fields must be a list of strings")
+        elif not all(isinstance(x, str) for x in mcp_filter["keep_custom_fields"]):
+            errors.append("keep_custom_fields list items must be strings")
+    
+    # Validate boolean options
+    for key in ("remove_empty", "remove_custom_fields"):
+        if key in mcp_filter and not isinstance(mcp_filter[key], bool):
+            errors.append(f"{key} must be a boolean value")
+    
+    return errors
 
 
 def apply_response_filter(response: dict, mcp_filter: dict) -> dict:
@@ -42,7 +114,26 @@ def apply_response_filter(response: dict, mcp_filter: dict) -> dict:
     filtered_response = copy.deepcopy(response)
     
     try:
+        # Validate filter configuration
+        validation_errors = validate_filter_config(mcp_filter)
+        if validation_errors:
+            logger.warning(f"Invalid journal filter syntax: {validation_errors}")
+            # Still set mcp_filtered flag even with validation errors
+            filtered_response["mcp_filtered"] = True
+            return filtered_response
+        
         # Parse filter configuration
+        journals_config = None
+        if "journals" in mcp_filter:
+            journals_dict = mcp_filter["journals"]
+            if isinstance(journals_dict, dict):
+                journals_config = JournalFilterConfig(
+                    code_review_only=journals_dict.get("code_review_only", False)
+                )
+            else:
+                # Log warning for invalid journal filter syntax
+                logger.warning(f"Invalid journal filter syntax: expected dict, got {type(journals_dict)}")
+        
         config = FilterConfig(
             include_fields=mcp_filter.get("include_fields"),
             exclude_fields=mcp_filter.get("exclude_fields"),
@@ -50,7 +141,8 @@ def apply_response_filter(response: dict, mcp_filter: dict) -> dict:
             remove_custom_fields=mcp_filter.get("remove_custom_fields", False),
             keep_custom_fields=mcp_filter.get("keep_custom_fields"),
             max_description_length=mcp_filter.get("max_description_length"),
-            max_array_items=mcp_filter.get("max_array_items")
+            max_array_items=mcp_filter.get("max_array_items"),
+            journals=journals_config
         )
         
         # Apply filtering to the response body
@@ -62,8 +154,9 @@ def apply_response_filter(response: dict, mcp_filter: dict) -> dict:
         
         return filtered_response
         
-    except Exception:
-        # On any filtering error, return original response
+    except Exception as e:
+        # Log warning for filtering errors but return original response to maintain backward compatibility
+        logger.warning(f"Response filtering failed: {e}")
         return response
 
 
@@ -104,22 +197,33 @@ def filter_dict(data: dict, config: FilterConfig) -> dict:
                 if filtered_custom_fields:  # Only include if not empty
                     filtered[key] = filtered_custom_fields
                 continue
-                
+        
         # Apply include/exclude field filtering, but handle Redmine response structure
         if config.include_fields:
-            # Special handling for Redmine response structure
+            # Always include wrapper keys and filter their contents
             if key in ["issue", "issues", "projects", "users", "time_entries"]:
-                # These are Redmine wrapper keys - always include them and apply filtering to their contents
                 pass
             elif key not in config.include_fields:
                 continue
-        if config.exclude_fields and key in config.exclude_fields:
+        # include_fields overrides exclude_fields by design
+        if (not config.include_fields) and config.exclude_fields and key in config.exclude_fields:
             continue
-            
+
+        # Handle journals filtering after field exclusion rules
+        if key == "journals" and isinstance(value, list) and config.journals:
+            try:
+                processor = JournalFilterProcessor()
+                filtered_journals = processor.filter_journals(value, config.journals)
+                filtered[key] = filtered_journals
+            except (re.error, TypeError, AttributeError, KeyError) as e:
+                logger.warning(f"Journal filtering failed, returning unfiltered journals: {e}")
+                filtered[key] = value
+            continue
+        
         # Handle description field truncation
-        if (key in ["description", "notes", "text"] and 
-            isinstance(value, str) and 
-            config.max_description_length and 
+        if (key in ["description", "notes", "text"] and
+            isinstance(value, str) and
+            config.max_description_length and
             len(value) > config.max_description_length):
             filtered[key] = value[:config.max_description_length] + "... [truncated]"
         else:
