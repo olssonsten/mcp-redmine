@@ -51,8 +51,8 @@ Add to your `claude_desktop_config.json`:
     "mcpServers": {
       "redmine": {
         "command": "uvx",
-        "args": ["--from", "mcp-redmine==2025.09.03.141435.post0",
-                "--refresh-package", "mcp-redmine", "mcp-redmine"],
+        "args": ["--from", "mcp-redmine-enhanced==2025.09.03.141435.post0",
+                "--refresh-package", "mcp-redmine-enhanced", "mcp-redmine"],
         "env": {
           "REDMINE_URL": "https://your-redmine-instance.example.com",
           "REDMINE_API_KEY": "your-api-key",
@@ -62,6 +62,28 @@ Add to your `claude_desktop_config.json`:
     }
   }
 ```
+
+### Alternative: Use Latest Git Version (Development)
+
+For the latest features and automatic updates, you can configure your MCP client to use the Git repository directly:
+
+```json
+{
+  "mcpServers": {
+    "redmine": {
+      "command": "uvx",
+      "args": ["--from", "git+https://github.com/olssonsten/mcp-redmine.git", "mcp-redmine"],
+      "env": {
+        "REDMINE_URL": "https://your-redmine-instance.example.com",
+        "REDMINE_API_KEY": "your-api-key",
+        "REDMINE_REQUEST_INSTRUCTIONS": "/path/to/instructions.md"
+      }
+    }
+  }
+}
+```
+
+This automatically uses the latest version from the main branch without needing PyPI updates. Perfect for development and testing new features. See [`DEVELOPMENT_SETUP.md`](DEVELOPMENT_SETUP.md) for more configuration options including RooCode and Kiro setup.
 
 ### 2. Installation using `docker`
 

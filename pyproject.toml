@@ -1,5 +1,5 @@
 [project]
-name = "mcp-redmine"
+name = "mcp-redmine-enhanced"
 version = "2025.09.03.141435.post0"
 description = "A MCP server that connects to your Redmine instance (Active Fork)"
 readme = "README.md"
@@ -12,16 +12,15 @@ dependencies = [
 ]
 authors = [
   { name="Rune Kaagaard" },
-  { name="Sten Olsson", email="sten.joseph.olsson@gmail.com" },
+  { name="Sten Olsson", email="155102857+olssonsten@users.noreply.github.com" },
 ]
 classifiers = [
     "Programming Language :: Python :: 3",
     "Operating System :: OS Independent",
 ]
 license-files = ["LICENSE"]
-packages = [
-    {include = "mcp_redmine"}
-]
+[tool.hatch.build.targets.wheel]
+packages = ["mcp_redmine"]
 
 [project.scripts]
 mcp-redmine = "mcp_redmine.server:main"

@@ -534,7 +534,7 @@ cli = [
 ]
 
 [[package]]
-name = "mcp-redmine"
+name = "mcp-redmine-enhanced"
 version = "2025.9.3.141435.post0"
 source = { editable = "." }
 dependencies = [
