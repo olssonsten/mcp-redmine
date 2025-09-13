@@ -12,7 +12,7 @@ from .filter_presets import apply_preset
 
 ### Constants ###
 
-VERSION = "2025.09.03.141435.post0"
+VERSION = "2025.09.13.162715.post0"
 
 # Load OpenAPI spec
 current_dir = pathlib.Path(__file__).parent

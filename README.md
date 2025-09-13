@@ -41,7 +41,7 @@ The easiest way to install MCP Redmine Enhanced:
     "redmine": {
       "command": "uvx",
       "args": [
-        "--from", "mcp-redmine-enhanced==2025.09.13.140055.post0",
+        "--from", "mcp-redmine-enhanced==2025.09.13.162715.post0",
         "--refresh-package", "mcp-redmine-enhanced",
         "mcp-redmine"
       ],
