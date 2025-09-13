@@ -58,7 +58,7 @@ publish-test: pre-publish-check
 	@test -n "$$PYPI_TOKEN_TEST" || { echo "PYPI_TOKEN_TEST is not set"; exit 1; }
 	$(MAKE) version-bump
 	$(MAKE) build-package
-	uv publish --repository testpypi --token "$$PYPI_TOKEN_TEST"
+	uv publish --publish-url https://test.pypi.org/legacy/ --token "$$PYPI_TOKEN_TEST"
 	@echo "✅ Published to Test PyPI: https://test.pypi.org/project/$(PACKAGE_NAME)/"
 	git checkout -- README.md pyproject.toml || true; \
 	[ -f "$(PACKAGE)/server.py" ] && git checkout -- $(PACKAGE)/server.py || true
