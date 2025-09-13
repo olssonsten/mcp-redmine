@@ -60,7 +60,7 @@ Add to your `claude_desktop_config.json`:
     "mcpServers": {
       "redmine": {
         "command": "uvx",
-        "args": ["--from", "mcp-redmine-enhanced==2025.09.03.141435.post0",
+        "args": ["--from", "mcp-redmine-enhanced==2025.09.13.140055.post0",
                 "--refresh-package", "mcp-redmine-enhanced", "mcp-redmine"],
         "env": {
           "REDMINE_URL": "https://your-redmine-instance.example.com",

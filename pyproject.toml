@@ -1,6 +1,6 @@
 [project]
 name = "mcp-redmine-enhanced"
-version = "2025.09.03.141435.post0"
+version = "2025.09.13.140055.post0"
 description = "A MCP server that connects to your Redmine instance (Active Fork)"
 readme = "README.md"
 requires-python = ">=3.10"
