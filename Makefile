@@ -18,7 +18,11 @@ version-bump:
 	sed -i.bak "s/VERSION = \"[^\"]*\"/VERSION = \"$(VERSION)\"/" $(PACKAGE)/server.py && rm $(PACKAGE)/server.py.bak
 
 version-bump-claude-desktop:
-	sed -i.bak "s/$(PACKAGE_NAME)==[0-9.]*\.post[0-9]*\"/$(PACKAGE_NAME)==$(VERSION)\"/g" ~/.config/Claude/claude_desktop_config.json && rm ~/.config/Claude/claude_desktop_config.json.bak
+	@if [ -f ~/.config/Claude/claude_desktop_config.json ]; then \
+		sed -i.bak "s/$(PACKAGE_NAME)==[0-9.]*\.post[0-9]*\"/$(PACKAGE_NAME)==$(VERSION)\"/g" ~/.config/Claude/claude_desktop_config.json && rm ~/.config/Claude/claude_desktop_config.json.bak; \
+	else \
+		echo "Skipping Claude config bump (file not found)"; \
+	fi
 
 # Build Helpers
 clean-dist:
@@ -51,14 +55,17 @@ pre-publish-check:
 # Publication Targets
 publish-test: pre-publish-check
 	@echo "🚀 Publishing $(PACKAGE_NAME) to Test PyPI..."
+	@test -n "$$PYPI_TOKEN_TEST" || { echo "PYPI_TOKEN_TEST is not set"; exit 1; }
 	$(MAKE) version-bump
 	$(MAKE) build-package
 	uv publish --repository testpypi --token "$$PYPI_TOKEN_TEST"
 	@echo "✅ Published to Test PyPI: https://test.pypi.org/project/$(PACKAGE_NAME)/"
-	git checkout README.md pyproject.toml $(PACKAGE)/server.py
+	git checkout -- README.md pyproject.toml || true; \
+	[ -f "$(PACKAGE)/server.py" ] && git checkout -- $(PACKAGE)/server.py || true
 
 publish-prod: pre-publish-check
 	@echo "🚀 Publishing $(PACKAGE_NAME) to Production PyPI..."
+	@test -n "$$PYPI_TOKEN_PROD" || { echo "PYPI_TOKEN_PROD is not set"; exit 1; }
 	$(MAKE) version-bump
 	$(MAKE) version-bump-claude-desktop
 	$(MAKE) build-package
