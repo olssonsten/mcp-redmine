@@ -55,7 +55,7 @@ pre-publish-check:
 # Publication Targets
 publish-test: pre-publish-check
 	@echo "🚀 Publishing $(PACKAGE_NAME) to Test PyPI..."
-	@test -n "$$PYPI_TOKEN_TEST" || { echo "PYPI_TOKEN_TEST is not set"; exit 1; }
+	@test -n "$$PYPI_TOKEN_TEST" || { echo "PYPI_TOKEN_TEST is not set (try: source .env)"; exit 1; }
 	$(MAKE) version-bump
 	$(MAKE) build-package
 	uv publish --publish-url https://test.pypi.org/legacy/ --token "$$PYPI_TOKEN_TEST"
@@ -65,7 +65,7 @@ publish-test: pre-publish-check
 
 publish-prod: pre-publish-check
 	@echo "🚀 Publishing $(PACKAGE_NAME) to Production PyPI..."
-	@test -n "$$PYPI_TOKEN_PROD" || { echo "PYPI_TOKEN_PROD is not set"; exit 1; }
+	@test -n "$$PYPI_TOKEN_PROD" || { echo "PYPI_TOKEN_PROD is not set (try: source .env)"; exit 1; }
 	$(MAKE) version-bump
 	$(MAKE) version-bump-claude-desktop
 	$(MAKE) build-package
